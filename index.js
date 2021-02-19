@@ -16,7 +16,8 @@ const run = async () => {
   }
 };
 const updateEndpoint = (req, res) => {
-  return req.params;
+  const project = projects.find(p => p.id === req.params.projectId);
+  res.send(project);
 };
 
 app.get("/update/:projectId", updateEndpoint);
