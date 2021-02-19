@@ -6,17 +6,23 @@ const app = express();
 
 const { port, projects } = config;
 
-const run = async () => {
+const run = async (command) => {
   try {
-    const { stdout, stderr } = await exec("ls | grep js");
-    console.log("stdout:", stdout);
-    console.log("stderr:", stderr);
+    const { stdout, stderr } = await exec(command);
+    if (stdout) console.log("stdout:", stdout);
+    if (stderr) console.log("stderr:", stderr);
   } catch (err) {
-    console.error(err);
+    console.error(err.stdout);
   }
 };
-const updateEndpoint = (req, res) => {
-  const project = projects.find(p => p.id === req.params.projectId);
+const updateEndpoint = async (req, res) => {
+  const project = projects.find((p) => p.id === req.params.projectId);
+  run(`cd ${project.path}`);
+  for (let index = 0; index < project.steps.length; index++) {
+    const step = project.steps[index];
+    console.log(`#${index}: ${step.title}`);
+    await run(step.exec);
+  }
   res.send(project);
 };
 
